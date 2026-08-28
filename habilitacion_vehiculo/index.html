@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habilitación de Vehículo - Municipalidad de Ituzaingó</title>
+
+<!-- Para Descargar PDF se utiliza html2pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e9ecef;
+    color: #111;
+    font-family: "Courier New", Courier, monospace;
+  }
+
+  .barra-acciones {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 12px;
+    background: #263238;
+    text-align: center;
+  }
+
+  .boton {
+    border: 0;
+    border-radius: 7px;
+    padding: 11px 18px;
+    margin: 0 5px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .boton-pdf {
+    background: #1d5d87;
+    color: white;
+  }
+
+  .boton-limpiar {
+    background: white;
+    color: #263238;
+  }
+
+  .hoja {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    padding: 17mm 24mm 18mm 24mm;
+    background: white;
+    position: relative;
+    border: 1.2mm solid #263238;
+    box-shadow:
+      inset 0 0 0 1mm white,
+      inset 0 0 0 1.8mm #8a9aa3,
+      inset 0 0 0 2.5mm white,
+      0 3px 18px rgba(0,0,0,.18);
+  }
+
+  /* Marco interior decorativo */
+  .hoja::before {
+    content: "";
+    position: absolute;
+    inset: 5mm;
+    border: 0.45mm solid #8a9aa3;
+    pointer-events: none;
+  }
+
+  /* Detalles elegantes en las cuatro esquinas */
+  .hoja::after {
+    content: "◆";
+    position: absolute;
+    top: 3.3mm;
+    left: 3.3mm;
+    width: 7mm;
+    height: 7mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #263238;
+    background: white;
+    font-family: Georgia, serif;
+    font-size: 10px;
+    box-shadow:
+      196mm 0 0 -2.4mm white,
+      196mm 0 0 -1.9mm #263238,
+      0 286mm 0 -2.4mm white,
+      0 286mm 0 -1.9mm #263238,
+      196mm 286mm 0 -2.4mm white,
+      196mm 286mm 0 -1.9mm #263238;
+    pointer-events: none;
+  }
+
+  .encabezado {
+    position: relative;
+    min-height: 34mm;
+  }
+
+  .escudo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 25mm;
+    height: 25mm;
+    object-fit: contain;
+  }
+
+  .fecha {
+    position: absolute;
+    right: 0;
+    top: 4mm;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  .campo-fecha {
+    width: 30px;
+    border: 0;
+    border-bottom: 1px dotted #111;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: center;
+    background: transparent;
+  }
+
+  .campo-fecha.anio {
+    width: 45px;
+  }
+
+  .destinatario {
+    margin-top: 10mm;
+    margin-left: 4mm;
+    font-size: 15px;
+    line-height: 1.65;
+    font-weight: 700;
+  }
+
+  .destinatario .linea-sd {
+    margin-top: 2mm;
+  }
+
+  .introduccion {
+    margin-top: 10mm;
+    margin-left: 4mm;
+    margin-right: 4mm;
+    font-size: 15px;
+    line-height: 1.7;
+    text-align: justify;
+    max-width: 165mm;
+  }
+
+  .titulo {
+    font-weight: 700;
+  }
+
+  .datos {
+    margin-top: 8mm;
+    margin-left: 10mm;
+    margin-right: 4mm;
+  }
+
+  .fila {
+    display: flex;
+    align-items: center;
+    min-height: 17mm;
+    font-size: 15px;
+  }
+
+  .viñeta {
+    width: 8mm;
+    flex: 0 0 8mm;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+  }
+
+  .etiqueta {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .campo {
+    flex: 1;
+    min-width: 0;
+    height: 9mm;
+    margin-left: 2mm;
+    padding: 1mm 2mm;
+    border: 0;
+    border-bottom: 1px dotted #111;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 15px;
+  }
+
+  .requisitos {
+    margin-top: 10mm;
+    margin-left: 10mm;
+    margin-right: 4mm;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .requisitos ul {
+    margin: 3mm 0 0 7mm;
+    padding-left: 5mm;
+  }
+
+  .requisitos li {
+    margin-bottom: 1.5mm;
+  }
+
+  .cierre {
+    margin-top: 18mm;
+    margin-left: 4mm;
+    margin-right: 4mm;
+    text-align: left;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .firma {
+    height: 45mm;
+  }
+
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    html, body {
+      background: white;
+    }
+
+    .barra-acciones {
+      display: none !important;
+    }
+
+    .hoja {
+      margin: 0;
+      width: 210mm;
+      min-height: 297mm;
+      box-shadow:
+        inset 0 0 0 1mm white,
+        inset 0 0 0 1.8mm #8a9aa3,
+        inset 0 0 0 2.5mm white;
+      page-break-after: avoid;
+    }
+
+    input {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .hoja {
+      width: 100%;
+      min-height: auto;
+      margin: 0;
+      padding: 15mm 8mm;
+      box-shadow:
+        inset 0 0 0 3px white,
+        inset 0 0 0 5px #8a9aa3,
+        inset 0 0 0 8px white;
+    }
+
+    .hoja::before {
+      inset: 5mm;
+    }
+
+    .hoja::after {
+      display: none;
+    }
+
+    .fecha {
+      position: static;
+      margin-left: 25mm;
+      margin-top: 3mm;
+    }
+
+    .encabezado {
+      min-height: 45mm;
+    }
+
+    .destinatario {
+      margin-top: 15mm;
+    }
+
+    .introduccion {
+      margin-left: 0;
+      margin-right: 0;
+      text-align: left;
+    }
+
+    .datos, .requisitos {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .cierre {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="barra-acciones">
+  <button class="boton boton-pdf" type="button" onclick="descargarPDF()">
+    Descargar PDF
+  </button>
+
+  <button class="boton boton-limpiar" type="button" onclick="limpiarFormulario()">
+    Limpiar campos
+  </button>
+</div>
+
+<div id="formularioPDF" class="hoja">
+
+  <div class="encabezado">
+
+    <div class="fecha">
+      Ituzaingó, Ctes.
+      <input class="campo-fecha" id="dia" maxlength="2" aria-label="Día">
+      de
+      <input class="campo-fecha" id="mes" maxlength="2" aria-label="Mes">
+      de
+      <input class="campo-fecha anio" id="anio" maxlength="4" aria-label="Año">
+    </div>
+
+  </div>
+
+  <div class="destinatario">
+    SEÑOR<br>
+    INTENDENTE MUNICIPAL<br>
+    SR. EMILIO NICOLAS<br>
+    <div class="linea-sd">S................../..................D</div>
+  </div>
+
+  <div class="introduccion">
+    Me dirijo a usted, con el fin de solicitar la
+    <span class="titulo">HABILITACION DE VEHICULO</span>
+    para <span class="titulo">fines comerciales</span> cuyo datos son los
+    siguientes.
+  </div>
+
+  <div class="datos">
+
+    <div class="fila">
+      <span class="viñeta">•</span>
+      <span class="etiqueta">Tipo de vehículo:</span>
+      <input class="campo" id="tipoVehiculo" type="text" autocomplete="off">
+    </div>
+
+    <div class="fila">
+      <span class="viñeta">•</span>
+      <span class="etiqueta">Dominio:</span>
+      <input class="campo" id="dominio" type="text" autocomplete="off">
+    </div>
+
+    <div class="fila">
+      <span class="viñeta">•</span>
+      <span class="etiqueta">Marca:</span>
+      <input class="campo" id="marca" type="text" autocomplete="off">
+    </div>
+
+    <div class="fila">
+      <span class="viñeta">•</span>
+      <span class="etiqueta">Modelo:</span>
+      <input class="campo" id="modelo" type="text" autocomplete="off">
+    </div>
+
+    <div class="fila">
+      <span class="viñeta">•</span>
+      <span class="etiqueta">Domicilio:</span>
+      <input class="campo" id="domicilio" type="text" autocomplete="off">
+    </div>
+
+  </div>
+
+  <div class="requisitos">
+    Requisitos:
+    <ul>
+      <li>Revisión técnica</li>
+      <li>Seguro</li>
+      <li>Cedula verde</li>
+    </ul>
+  </div>
+
+  <div class="cierre">
+    Sin otro particular, lo saludo atentamente.
+  </div>
+
+  <div class="firma"></div>
+
+</div>
+
+<script>
+function descargarPDF() {
+  const elemento = document.getElementById("formularioPDF");
+
+  const opciones = {
+    margin: 0,
+    filename: "Habilitacion_de_Vehiculo.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff"
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
+    },
+    pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+  };
+
+  html2pdf().set(opciones).from(elemento).save();
+}
+
+function limpiarFormulario() {
+  document.querySelectorAll("input").forEach(function(campo) {
+    campo.value = "";
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habilitación Comercial Condicional</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e9ecef;
+    color: #111;
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  .acciones {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 12px;
+    background: #263238;
+    text-align: center;
+  }
+
+  .boton {
+    border: 0;
+    border-radius: 6px;
+    padding: 11px 20px;
+    margin: 0 4px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .boton-pdf {
+    background: #1d5d87;
+    color: white;
+  }
+
+  .boton-limpiar {
+    background: white;
+    color: #263238;
+  }
+
+  .hoja {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    padding: 24mm 26mm;
+    background: white;
+    position: relative;
+    border: 1.4mm solid #245f83;
+    box-shadow:
+      inset 0 0 0 1.2mm white,
+      inset 0 0 0 2.2mm #d4a72c,
+      0 4px 20px rgba(0,0,0,.18);
+  }
+
+  /* Segundo marco interior */
+  .hoja::before {
+    content: "";
+    position: absolute;
+    inset: 6mm;
+    border: 0.55mm solid #245f83;
+    pointer-events: none;
+  }
+
+  /* Detalles decorativos en las cuatro esquinas */
+  .hoja::after {
+    content: "◆";
+    position: absolute;
+    top: 3.5mm;
+    left: 3.5mm;
+    width: 7mm;
+    height: 7mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d4a72c;
+    background: white;
+    font-family: Georgia, serif;
+    font-size: 12px;
+    box-shadow:
+      196mm 0 0 -2.6mm white,
+      196mm 0 0 -2.0mm #d4a72c,
+      0 286mm 0 -2.6mm white,
+      0 286mm 0 -2.0mm #d4a72c,
+      196mm 286mm 0 -2.6mm white,
+      196mm 286mm 0 -2.0mm #d4a72c;
+    pointer-events: none;
+  }
+
+  .contenido {
+    width: 100%;
+    min-height: 250mm;
+    text-align: center;
+  }
+
+  .municipalidad {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.5;
+    margin-top: 2mm;
+    color: #245f83;
+  }
+
+  .provincia {
+    font-size: 15px;
+    margin-top: 1mm;
+  }
+
+  .titulo {
+    margin-top: 24mm;
+    font-size: 23px;
+    font-weight: bold;
+    line-height: 1.35;
+    color: #245f83;
+  }
+
+  .subtitulo {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .texto {
+    margin-top: 24mm;
+    font-size: 16px;
+    line-height: 1.8;
+    text-align: justify;
+  }
+
+  .campo {
+    display: inline-block;
+    vertical-align: baseline;
+    border: 0;
+    border-bottom: 1px dotted #111;
+    background: transparent;
+    outline: none;
+    padding: 0 2px 1px;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 16px;
+    color: #111;
+  }
+
+  .campo-comercio {
+    width: 72mm;
+  }
+
+  .campo-domicilio {
+    width: 60mm;
+  }
+
+  .campo-numero {
+    width: 24mm;
+  }
+
+  .campo-fecha {
+    width: 30mm;
+  }
+
+  .texto-final {
+    margin-top: 8mm;
+    font-size: 16px;
+    line-height: 1.8;
+    text-align: justify;
+  }
+
+  .exhibicion {
+    margin-top: 25mm;
+    font-size: 16px;
+    line-height: 1.7;
+    text-align: center;
+  }
+
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    html, body {
+      background: white;
+    }
+
+    .acciones {
+      display: none !important;
+    }
+
+    .hoja {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0;
+      box-shadow:
+        inset 0 0 0 1.2mm white,
+        inset 0 0 0 2.2mm #d4a72c;
+      page-break-after: avoid;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .hoja {
+      width: 100%;
+      min-height: auto;
+      margin: 0;
+      padding: 18mm 8mm;
+    }
+
+    .hoja::after {
+      display: none;
+    }
+
+    .texto,
+    .texto-final {
+      text-align: left;
+    }
+
+    .campo {
+      max-width: 100%;
+    }
+
+    .campo-comercio {
+      width: 70%;
+    }
+
+    .campo-domicilio {
+      width: 55%;
+    }
+
+    .campo-numero {
+      width: 20%;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="acciones">
+  <button class="boton boton-pdf" onclick="descargarPDF()">
+    Descargar PDF
+  </button>
+
+  <button class="boton boton-limpiar" onclick="limpiarCampos()">
+    Limpiar campos
+  </button>
+</div>
+
+<div id="formularioPDF" class="hoja">
+
+  <div class="contenido">
+
+    <div class="municipalidad">
+      Municipalidad de Ituzaingó
+    </div>
+
+    <div class="provincia">
+      Provincia de Corrientes
+    </div>
+
+    <div class="titulo">
+      HABILITACIÓN COMERCIAL<br>
+      <span class="subtitulo">CONDICIONAL</span>
+    </div>
+
+    <div class="texto">
+      Por la Presente se autoriza el funcionamiento del Comercio
+      <input
+        id="comercio"
+        class="campo campo-comercio"
+        type="text"
+        value="ROPERIA EMILY II"
+        aria-label="Nombre del comercio"
+      >
+      Con Domicilio en calle
+      <input
+        id="domicilio"
+        class="campo campo-domicilio"
+        type="text"
+        value="Buenos Aires"
+        aria-label="Domicilio"
+      >
+      Nº
+      <input
+        id="numero"
+        class="campo campo-numero"
+        type="text"
+        value="2058"
+        aria-label="Número"
+      >
+      por haber reunido los requisitos determinados en las Ordenanzas vigentes en éste Municipio.
+    </div>
+
+    <div class="texto-final">
+      Fecha de expiración de Habilitación comercial provisoria
+      <input
+        id="fecha"
+        class="campo campo-fecha"
+        type="text"
+        value="31/12/2026"
+        aria-label="Fecha de expiración"
+      >.
+    </div>
+
+    <div class="exhibicion">
+      Está Autorización deberá ser expuesta a la vista del público.
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function descargarPDF() {
+  const elemento = document.getElementById("formularioPDF");
+
+  const opciones = {
+    margin: 0,
+    filename: "Habilitacion_Comercial_Condicional.pdf",
+    image: {
+      type: "jpeg",
+      quality: 0.98
+    },
+    html2canvas: {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
+    },
+    pagebreak: {
+      mode: ["avoid-all", "css", "legacy"]
+    }
+  };
+
+  html2pdf()
+    .set(opciones)
+    .from(elemento)
+    .save();
+}
+
+function limpiarCampos() {
+  document.getElementById("comercio").value = "";
+  document.getElementById("domicilio").value = "";
+  document.getElementById("numero").value = "";
+  document.getElementById("fecha").value = "";
+}
+</script>
+
+</body>
+</html>
